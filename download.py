@@ -1,36 +1,25 @@
 from subprocess import run, PIPE
+from urllib.parse import urlparse
 
 
-def get_arch():
-    return run(["uname", "-m"], stdout=PIPE).stdout.decode().strip('\n')
+def is_link(link):
+    try:
+        p = urlparse(link)
+        if p.scheme in ["rsync", "https", "http"]:
+            return True
+    except OSError:
+        pass
+    return False
 
 
-def remove_comment(arg):
-    if '#' in arg:
-        arg = arg[:arg.find('#')]
-    return arg
-
-
-def parse_raw_mirror(raw_mirror):
-    return raw_mirror.split(" ")[-1].strip('\n')
-
-
-def get_mirrors():
-    with open("/etc/pacman.d/mirrorlist") as mirror_file:
-        raw_mirrors = mirror_file.readlines()
-
-    arch = get_arch()
+def get_updates():
+    mirrors = run(["pacman", "-Spu"], stdout=PIPE).stdout.decode().split('\n')
     
-    mirrors = []
-    for raw_mirror in raw_mirrors:
-        if len(raw_mirror) > 0:
-            mirrors.append(parse_raw_mirror(remove_comment(raw_mirror)).replace("$arch", arch))
+    for mirror in mirrors:
+        if not is_link(mirror):
+            mirrors.remove(mirror)
 
-    return list(filter(None, mirrors))
-
-
-def find_package(package):
-    pass
+    return mirrors
 
 
 def download_package(package):
