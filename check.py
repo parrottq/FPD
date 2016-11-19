@@ -17,5 +17,7 @@ def get_updates():
     for update in lupdates:
         data = parse_update(update)
         if data:
-            yield data
+            decoded.append(data)
+
+    return decoded
 
