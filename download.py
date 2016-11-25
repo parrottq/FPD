@@ -1,5 +1,4 @@
-from subprocess import run, Popen, PIPE
-from urllib.parse import urlparse
+from subprocess import Popen
 from time import sleep
 
 
@@ -11,16 +10,6 @@ def is_link(link):
     except OSError:
         pass
     return False
-
-
-def get_updates():
-    mirrors = run(["pacman", "-Spu"], stdout=PIPE).stdout.decode().split('\n')
-    
-    for mirror in mirrors:
-        if not is_link(mirror):
-            mirrors.remove(mirror)
-
-    return mirrors
 
 
 def download_package(link, directory="temp/"):
