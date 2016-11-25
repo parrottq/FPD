@@ -28,7 +28,8 @@ def download_package(link, directory="temp/"):
     while process.poll() == None:
         sleep(0.1)
 
-if __name__ == "__main__":
+# Unavailable
+if __name__ == "__main__" and False:
     packages = get_updates()
     num_packages = len(packages)
     for package_count, package in enumerate(packages):
