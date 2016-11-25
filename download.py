@@ -2,16 +2,6 @@ from subprocess import Popen
 from time import sleep
 
 
-def is_link(link):
-    try:
-        p = urlparse(link)
-        if p.scheme in ["rsync", "https", "http"]:
-            return True
-    except OSError:
-        pass
-    return False
-
-
 def download_package(link, directory="temp/"):
     process = Popen(["lftp", "-c", "mget", "-O", directory, link])
     while process.poll() == None:
