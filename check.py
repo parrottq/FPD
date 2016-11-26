@@ -13,12 +13,13 @@ def is_link(link):
     return False
 
 
+def to_rel_url(url):
+    return "/".join(url.split("/")[-4:])
+
+
 def get_updates():
-    mirrors = run(["pacman", "-Spu"], stdout=PIPE).stdout.decode().split('\n')
-    for mirror in mirrors:
-        if not is_link(mirror):
-            mirrors.remove(mirror)
-    return mirrors
+    mirrors = [mirror for mirror in run(["pacman", "-Spu"], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
+    return [to_rel_url(mirror) for mirror in mirrors]
 
 
 def get_raw_mirrors():
@@ -30,8 +31,8 @@ def get_mirrors():
     return [mirror[0] for mirror in mirrors]
 
 
-def get_package_size(packages):
-    return [(package, int(requests.head(package).headers["Content-Length"])) for package in packages]
+def get_package_size(packages, mirror):
+    return [(package, int(requests.head(combine_url(mirror, package)).headers["Content-Length"])) for package in packages]
 
 
 def combine_url(base, url):
@@ -58,5 +59,6 @@ def match_packages(packages, mirrors, cap=100*1000):
 
 if __name__ == "__main__":
     import files
-    for package in match_packages(get_package_size(get_updates()), get_mirrors()):
-        print(combine_url(package[0], package[1]))
+    mirrors = get_mirrors()
+    for package in match_packages(get_package_size(get_updates(), mirrors[0]), mirrors):
+        print(package[0], package[1])
