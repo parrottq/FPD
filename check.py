@@ -24,5 +24,39 @@ def get_updates():
 def get_raw_mirrors():
     return requests.get("https://www.archlinux.org/mirrors/status/json/").json()["urls"]
 
+
 def get_mirrors():
-    return sorted([(mirror["url"], mirror["score"]) for mirror in get_raw_mirrors() if mirror["score"] and mirror["url"]], key=lambda e: e[1])
+    mirrors = sorted([(mirror["url"], mirror["score"]) for mirror in get_raw_mirrors() if mirror["score"] and mirror["url"]], key=lambda e: e[1])
+    return [mirror[0] for mirror in mirrors]
+
+
+def get_package_size(packages):
+    return [(package, int(requests.head(package).headers["Content-Length"])) for package in packages]
+
+
+def combine_url(base, url):
+    return base + "/".join(url.split("/")[-4:])
+
+
+def match_packages(packages, mirrors, cap=100*1000):
+    url_packages = []
+    mirrors = [list(mirror) for mirror in zip(mirrors, [cap]*len(mirrors))]
+
+    # Deal with packages that are bigger than data cap
+    for package in packages:
+        if package[1] > cap:
+            url_packages.append((mirrors.pop(0)[0], package[0]))
+
+    # Assign packages to mirrors while enforcing data caps for each mirror
+    for package in packages:
+        for mirror in mirrors:
+            if mirror[1] - package[1] > 0:
+                mirror[1] = mirror[1] - package[1]
+                url_packages.append((mirror[0], package[0]))
+                break
+    return url_packages
+
+if __name__ == "__main__":
+    import files
+    for package in match_packages(get_package_size(get_updates()), get_mirrors()):
+        print(combine_url(package[0], package[1]))
