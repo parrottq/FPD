@@ -51,14 +51,14 @@ def match_packages(packages, mirrors, cap=100*1000):
     # Deal with packages that are bigger than data cap
     for package in packages:
         if package[1] > cap:
-            url_packages.append((mirrors.pop(0)[0], package[0]))
+            url_packages.append((combine_url(mirrors.pop(0)[0], package[0]), package[1]))
 
     # Assign packages to mirrors while enforcing data caps for each mirror
     for package in packages:
         for mirror in mirrors:
             if mirror[1] - package[1] > 0:
                 mirror[1] = mirror[1] - package[1]
-                url_packages.append((mirror[0], package[0]))
+                url_packages.append((combine_url(mirror[0], package[0]), package[1]))
                 break
     return url_packages
 
@@ -66,4 +66,4 @@ if __name__ == "__main__":
     import files
     mirrors = get_mirrors()
     for package in match_packages(get_package_size(get_updates(), mirrors[0]), mirrors):
-        print(package[0], package[1])
+        print(package)
