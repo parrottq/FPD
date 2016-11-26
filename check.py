@@ -18,7 +18,12 @@ def to_rel_url(url):
 
 
 def get_updates():
-    mirrors = [mirror for mirror in run(["pacman", "-Spu"], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
+    mirrors = [mirror for mirror in run(["pacman", "-Syup"], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
+    return [to_rel_url(mirror) for mirror in mirrors]
+
+
+def get_dependecies(package):
+    mirrors = [mirror for mirror in run(["pacman", "-Sp", package], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
     return [to_rel_url(mirror) for mirror in mirrors]
 
 
