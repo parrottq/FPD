@@ -1,16 +1,24 @@
-from subprocess import Popen
-from time import sleep
+import requests
+from time import time
+
+def download_package(url):
+    download = requests.get(url, stream=True)
+    with open("temp/{0}".format(url.split("/")[-1]), 'wb') as f:
+        ti = 0
+        yield "\r{0}KB".format(ti)
+        for chunk in download.iter_content(chunk_size=1024):
+            if chunk:
+                ti += 1
+                if ti % 50 == 0:
+                    yield "\r{0}KB".format(ti)
+                f.write(chunk)
+        yield "\r{0}".format(ti)
 
 
-def download_package(link, directory="temp/"):
-    process = Popen(["lftp", "-c", "mget", "-O", directory, link])
-    while process.poll() == None:
-        sleep(0.1)
-
-# Unavailable
-if __name__ == "__main__" and False:
-    packages = get_updates()
-    num_packages = len(packages)
-    for package_count, package in enumerate(packages):
-        print("\x1b[32mDownload: {0} \x1b[33m({1}/{2})\x1b[0m".format(package[package.rfind('/')+1:package.rfind('-')], package_count+1, num_packages))
-        download_package(package)
+if __name__ == "__main__":
+    import files
+    for package in files.f:
+        print(package)
+        for e in download_package(package):
+            print(e, end="")
+        print()
