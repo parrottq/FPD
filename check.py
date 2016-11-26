@@ -1,5 +1,6 @@
 from subprocess import run, PIPE
 from urllib.parse import urlparse
+import requests
 
 
 def is_link(link):
@@ -20,5 +21,8 @@ def get_updates():
     return mirrors
 
 
-def get_json_mirrors():
-    pass
+def get_raw_mirrors():
+    return requests.get("https://www.archlinux.org/mirrors/status/json/").json()["urls"]
+
+def get_mirrors():
+    return sorted([(mirror["url"], mirror["score"]) for mirror in get_raw_mirrors() if mirror["score"] and mirror["url"]], key=lambda e: e[1])
