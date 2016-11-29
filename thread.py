@@ -1,5 +1,5 @@
 import threading
-from download import download_package
+from download import *
 import check
 from time import sleep
 
@@ -30,7 +30,7 @@ class DownloadManager:
         size = 0
         for s in self.threads:
             size += s.size
-        self.total_size = size
+        self.all_size = size
         self.done_size = 0
         self.removed_size = 0
 
@@ -56,19 +56,21 @@ class DownloadManager:
             self.done_size = 0
             for t in self.running:
                 self.done_size += t.progress * 1000
-            self.done_size += self.removed_size
 
-            yield (self.done_size, self.total_size)
+            yield (self.done_size, self.removed_size, self.all_size)
             sleep(0.1)
         print()
 
 
 if __name__ =="__main__":
     import files
+    print("\rFetching mirrors...", end="")
     mirrors = check.get_mirrors()
-    packages = check.match_packages(check.get_package_size(files.f, mirrors[0]), mirrors)
+    print("\rMatching package with mirror...", end="")
+    packages = check.match_packages(check.get_package_size(check.get_updates(), mirrors[0]), mirrors)
 
     dm = DownloadManager(packages)
     for done in dm.start():
-        print(done)
+        print("\r" + create_progress_bar(done), end="")
+    print()
 
