@@ -2,6 +2,8 @@ import requests
 from time import time
 from shutil import get_terminal_size
 from math import ceil
+from os.path import isdir
+from os import mkdir
 
 
 colours = {
@@ -13,7 +15,11 @@ colours = {
 
 def download_package(url):
     download = requests.get(url, stream=True)
-    with open("temp/{0}".format(url.split("/")[-1]), 'wb') as f:
+
+    if not isdir("/var/cache/fpd"):
+        mkdir("/var/cache/fpd")
+
+    with open("/var/cache/fpd/{0}".format(url.split("/")[-1]), 'wb') as f:
         ti = 0
         yield ti
         for chunk in download.iter_content(chunk_size=1024):
