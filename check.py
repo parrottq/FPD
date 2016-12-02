@@ -6,7 +6,7 @@ import requests
 def is_link(link):
     try:
         p = urlparse(link)
-        if p.scheme in ["rsync", "https", "http"]:
+        if p.scheme in ["https", "http"]:
             return True
     except OSError:
         pass
