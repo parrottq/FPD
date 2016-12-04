@@ -63,7 +63,6 @@ class DownloadManager:
 
 
 if __name__ =="__main__":
-    import files
     print("\rFetching mirrors...", end="")
     mirrors = check.get_mirrors()
     print("\rMatching package with mirror...", end="")

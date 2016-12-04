@@ -57,7 +57,6 @@ def create_progress_bar(progress):
 
 
 if __name__ == "__main__":
-    import files
     for package in files.f:
         print(package)
         for e in download_package(package):
