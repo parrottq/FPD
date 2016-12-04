@@ -11,3 +11,15 @@ def test_is_link():
     assert not check.is_link("example.org")
     assert not check.is_link("/example")
 
+
+def test_package_urls():
+    package = check.Package("http://example.org/archlinux/core/os/x86_64/linux-0-x86_64.pkg.tar.xz")
+    assert package.rel_url == "core/os/x86_64/linux-0-x86_64.pkg.tar.xz"
+    assert package.base_url == "http://example.org/archlinux/core/os/x86_64/linux-0-x86_64.pkg.tar.xz"
+    assert package.size == -1
+
+    package.update_base_url("http://example.com/arch/")
+    assert package.rel_url == "core/os/x86_64/linux-0-x86_64.pkg.tar.xz"
+    assert package.base_url == "http://example.com/arch/core/os/x86_64/linux-0-x86_64.pkg.tar.xz"
+    assert package.size == -1
+
