@@ -10,16 +10,16 @@ class Package:
         self.size = -1
 
     def update_size(self, mirror):
-        self.size = int(requests.head(self.to_base(mirror)).headers["Content-Length"])
+        self.size = int(requests.head(self.base_url).headers["Content-Length"])
+
+    def update_base_url(self, url):
+        self.base_url = self._to_base(url)
 
     def _to_rel(self, url): # make none private
         return "/".join(url.split("/")[-4:])
 
-    def to_base(self, base):
+    def _to_base(self, base):
         return base + "/".join(self.rel_url.split("/")[-4:])
-
-    def print(self):
-        print("{0} {1}".format(self.rel_url, self.size))
 
 
 def is_link(link):
@@ -56,14 +56,17 @@ def match_packages(packages, mirrors, cap=100*1000):
     # Deal with packages that are bigger than data cap
     for package in packages:
         if package.size > cap:
-            url_packages.append((package.to_base(mirrors.pop(0)[0]), package.size))
+            mirror = mirrors.pop(0)[0]
+            package.update_base_url(mirror)
+            url_packages.append(package)
 
     # Assign packages to mirrors while enforcing data caps for each mirror
     for package in packages:
         for mirror in mirrors:
             if mirror[1] - package.size > 0:
                 mirror[1] = mirror[1] - package.size
-                url_packages.append((package.to_base(mirror[0]), package.size))
+                package.update_base_url(mirror[0])
+                url_packages.append(package)
                 break
     return url_packages
 
@@ -71,13 +74,11 @@ if __name__ == "__main__":
     print("Fetching mirrors")
     mirrors = get_mirrors()
     packages = [Package(url) for url in get_updates()]
+
     print("Getting sizes")
     for package in packages:
         package.update_size(mirrors[0])
 
-    for package in packages:
-        package.print()
-
     print("Matching packages with mirrors")
     for e in match_packages(packages, mirrors):
-        print(e)
+        print(e.base_url)
