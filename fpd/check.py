@@ -3,6 +3,25 @@ from urllib.parse import urlparse
 import requests
 
 
+class Package:
+    def __init__(self, url):
+        self.rel_url = self._to_rel(url)
+        self.base_url = url
+        self.size = -1
+
+    def update_size(self, mirror):
+        self.size = int(requests.head(self.to_base(mirror)).headers["Content-Length"])
+
+    def _to_rel(self, url): # make none private
+        return "/".join(url.split("/")[-4:])
+
+    def to_base(self, base):
+        return base + "/".join(self.rel_url.split("/")[-4:])
+
+    def print(self):
+        print("{0} {1}".format(self.rel_url, self.size))
+
+
 def is_link(link):
     try:
         p = urlparse(link)
@@ -13,18 +32,12 @@ def is_link(link):
     return False
 
 
-def to_rel_url(url):
-    return "/".join(url.split("/")[-4:])
-
-
 def get_updates():
-    mirrors = [mirror for mirror in run(["pacman", "-Syup"], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
-    return [to_rel_url(mirror) for mirror in mirrors]
+    return [mirror for mirror in run(["pacman", "-Syup"], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
 
 
 def get_dependecies(package):
-    mirrors = [mirror for mirror in run(["pacman", "-Sp", package], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
-    return [to_rel_url(mirror) for mirror in mirrors]
+    return [mirror for mirror in run(["pacman", "-Sp", package], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
 
 
 def get_raw_mirrors():
@@ -36,34 +49,35 @@ def get_mirrors():
     return [mirror[0] for mirror in mirrors]
 
 
-def get_package_size(packages, mirror):
-    return [(package, int(requests.head(combine_url(mirror, package)).headers["Content-Length"])) for package in packages]
-
-
-def combine_url(base, url):
-    return base + "/".join(url.split("/")[-4:])
-
-
 def match_packages(packages, mirrors, cap=100*1000):
     url_packages = []
     mirrors = [list(mirror) for mirror in zip(mirrors, [cap]*len(mirrors))]
 
     # Deal with packages that are bigger than data cap
     for package in packages:
-        if package[1] > cap:
-            url_packages.append((combine_url(mirrors.pop(0)[0], package[0]), package[1]))
+        if package.size > cap:
+            url_packages.append((package.to_base(mirrors.pop(0)[0]), package.size))
 
     # Assign packages to mirrors while enforcing data caps for each mirror
     for package in packages:
         for mirror in mirrors:
-            if mirror[1] - package[1] > 0:
-                mirror[1] = mirror[1] - package[1]
-                url_packages.append((combine_url(mirror[0], package[0]), package[1]))
+            if mirror[1] - package.size > 0:
+                mirror[1] = mirror[1] - package.size
+                url_packages.append((package.to_base(mirror[0]), package.size))
                 break
     return url_packages
 
 if __name__ == "__main__":
-    import files
+    print("Fetching mirrors")
     mirrors = get_mirrors()
-    for package in match_packages(get_package_size(get_updates(), mirrors[0]), mirrors):
-        print(package)
+    packages = [Package(url) for url in get_updates()]
+    print("Getting sizes")
+    for package in packages:
+        package.update_size(mirrors[0])
+
+    for package in packages:
+        package.print()
+
+    print("Matching packages with mirrors")
+    for e in match_packages(packages, mirrors):
+        print(e)
