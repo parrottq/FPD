@@ -1,3 +1,4 @@
+#! /usr/bin/python
 import click
 from fpd import check, thread
 from fpd.download import create_progress_bar
