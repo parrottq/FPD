@@ -34,7 +34,8 @@ def create_progress_bar(progress):
     t_size = get_terminal_size().columns
 
     start ="["
-    end = "] {0}{1}KB/{2}KB".format(" " * (len(str(progress[2])) - len(str(progress[0]+progress[1]))), int((progress[0]+progress[1])/1000), int(progress[2]/1000))
+    percentage = ((progress[0] + progress[1]) / progress[2]) * 100
+    end = "] {0}{1}%".format(" " * (3 - len(str(int(percentage)))), int(percentage))
     len_bar = t_size - len(start+end)
     conversion = len_bar / progress[2]
 
