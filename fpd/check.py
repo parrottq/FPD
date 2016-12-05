@@ -36,7 +36,7 @@ def get_updates():
     return [mirror for mirror in run(["pacman", "-Syup"], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
 
 
-def get_dependecies(package):
+def get_dependencies(package):
     return [mirror for mirror in run(["pacman", "-Sp", package], stdout=PIPE).stdout.decode().split('\n') if is_link(mirror)]
 
 
