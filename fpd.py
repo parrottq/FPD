@@ -34,8 +34,10 @@ def install_packages(packages):
 
     print("Downloading")
     downloader = thread.DownloadManager(packages)
-    for done in downloader.start():
-        print("\r" + create_progress_bar(done), end="")
+    for done, per_package in downloader.start():
+        print("\r" + "".join([" " * (3-len(str(e))) + str(e) + "%" for e in per_package]))
+
+        print("\r" + create_progress_bar(done), end="\x1b[1A")
     print()
 
 
