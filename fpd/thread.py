@@ -52,7 +52,7 @@ class DownloadManager:
 
             self.done_size = 0
             for t in self.running:
-                self.done_size += t.progress * 1000
+                self.done_size += t.progress
 
             yield (self.done_size, self.removed_size, self.all_size)
             sleep(0.1)

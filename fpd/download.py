@@ -24,7 +24,7 @@ def download_package(url):
         yield ti
         for chunk in download.iter_content(chunk_size=1024):
             if chunk:
-                ti += 1
+                ti += 1024
                 yield ti
                 f.write(chunk)
         yield ti
