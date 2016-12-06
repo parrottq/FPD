@@ -59,6 +59,46 @@ class DownloadManager:
         print()
 
 
+class Sizer(threading.Thread):
+    def __init__(self, package):
+        super().__init__()
+        self.package = package
+        self.done = 0
+
+    def run(self):
+        self.done = 1
+        self.package.update_size()
+        self.done = 2
+
+
+class SizeManager:
+    def __init__(self, packages, thread_max=8):
+        self.packages = packages
+        self.threads = [Sizer(package) for package in packages]
+        self.max = thread_max
+        self.active = 0
+        self.done_count = 0
+
+    def start(self):
+        done = False
+        yield (self.done_count, len(self.threads))
+        while not done:
+            for thread in self.threads:
+                if self.active < self.max and thread.done == 0:
+                    self.active += 1
+                    thread.start()
+
+                if thread.done == 2:
+                    thread.done = 3
+                    self.active -= 1
+                    self.done_count += 1
+                    yield (self.done_count, len(self.threads))
+                    if self.done_count == len(self.threads):
+                        done = True
+
+            sleep(0.1)
+
+
 if __name__ =="__main__":
     print("\rFetching mirrors...", end="")
     mirrors = check.get_mirrors()

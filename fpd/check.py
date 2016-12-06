@@ -9,7 +9,7 @@ class Package:
         self.base_url = url
         self.size = -1
 
-    def update_size(self, mirror):
+    def update_size(self):
         self.size = int(requests.head(self.base_url).headers["Content-Length"])
 
     def update_base_url(self, url):
@@ -46,7 +46,7 @@ def get_raw_mirrors():
 
 def get_mirrors():
     mirrors = sorted([(mirror["url"], mirror["score"]) for mirror in get_raw_mirrors() if mirror["score"] and mirror["url"]], key=lambda e: e[1])
-    return [mirror[0] for mirror in mirrors]
+    return [mirror[0] for mirror in mirrors if is_link(mirror[0])]
 
 
 def match_packages(packages, mirrors, cap=100*1000):
