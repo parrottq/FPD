@@ -25,10 +25,11 @@ def install_packages(packages):
     print("Fetching mirrors")
     mirrors = check.get_mirrors()
 
-    for num, p in enumerate(packages):
-        print("\rGetting package sizes ({0}/{1})".format(num+1, len(packages)), end="")
-        p.update_size(mirrors[0])
-    print("\r")
+    sizes = thread.SizeManager(packages, thread_max=16)
+    for done, total in sizes.start():
+        print("\rGetting sizes ({0}/{1})".format(done, total), end="")
+    print()
+    packages = [t.package for t in sizes.threads]
 
     print("Matching package with mirror")
     packages = check.match_packages(packages, mirrors)
