@@ -9,7 +9,7 @@ class Package:
         self.base_url = url
         self.size = -1
 
-    def update_size(self, mirror):
+    def update_size(self):
         self.size = int(requests.head(self.base_url).headers["Content-Length"])
 
     def update_base_url(self, url):
