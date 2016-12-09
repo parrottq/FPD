@@ -2,6 +2,7 @@
 import click
 from fpd import check, thread
 from fpd.download import create_progress_bar
+import grequests
 
 
 @click.command()
@@ -25,11 +26,15 @@ def install_packages(packages):
     print("Fetching mirrors")
     mirrors = check.get_mirrors()
 
-    sizes = thread.SizeManager(packages, thread_max=16)
-    for done, total in sizes.start():
-        print("\rGetting sizes ({0}/{1})".format(done, total), end="")
+    rqs = (grequests.head(package.base_url) for package in packages)
+    total_packages = len(packages)
+    packages = []
+    for num, done in enumerate(grequests.imap(rqs, size=4)):
+        print("\rGetting sizes ({0}/{1})".format(num+1, total_packages), end="")
+        p = check.Package(done.url)
+        p.size = int(done.headers["Content-Length"])
+        packages.append(p)
     print()
-    packages = [t.package for t in sizes.threads]
 
     print("Matching package with mirror")
     packages = check.match_packages(packages, mirrors)
