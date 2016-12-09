@@ -2,6 +2,7 @@
 import click
 from fpd import check, thread
 from fpd.download import create_progress_bar
+from shutil import get_terminal_size
 
 
 @click.command()
@@ -37,9 +38,13 @@ def install_packages(packages):
     print("Downloading")
     downloader = thread.DownloadManager(packages)
     for done, per_package in downloader.start():
-        print("\r" + "".join([" " * (3-len(str(e))) + str(e) + "%" for e in per_package]))
+        t_size = get_terminal_size().columns
+        for e in range(4 - len(per_package)):
+            print("\r" + " " * t_size)
+        for per in per_package:
+            print("\r" + create_progress_bar((per, 0, 100), int(t_size/3*2)))
 
-        print("\r" + create_progress_bar(done), end="\x1b[1A")
+        print("\r" + create_progress_bar(done, t_size), end="\x1b[1A" * 4)
     print()
 
 
