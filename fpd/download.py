@@ -30,9 +30,7 @@ def download_package(url):
         yield ti
 
 
-def create_progress_bar(progress):
-    t_size = get_terminal_size().columns
-
+def create_progress_bar(progress, t_size):
     start ="["
     percentage = ((progress[0] + progress[1]) / progress[2]) * 100
     end = "] {0}{1}%".format(" " * (3 - len(str(int(percentage)))), int(percentage))
