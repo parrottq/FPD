@@ -45,7 +45,9 @@ def install_packages(packages):
             print("\r" + create_progress_bar((per, 0, 100), int(t_size/3*2)))
 
         print("\r" + create_progress_bar(done, t_size), end="\x1b[1A" * 4)
-    print()
+    for e in range(4+1):
+        print(" " * t_size)
+    print("\x1b[1A" * 4 * 2)
 
 
 if __name__ == "__main__":
