@@ -8,7 +8,8 @@ from shutil import get_terminal_size
 
 @click.command()
 @click.option("-P", default=None)
-def run(p):
+@click.option("-t", default=4)
+def run(p, t):
     if p:
         # Specific package
         packages = check.get_dependencies(p)
@@ -20,10 +21,10 @@ def run(p):
             return
 
     packages = [check.Package(package) for package in packages]
-    install_packages(packages)
+    install_packages(packages, t)
 
 
-def install_packages(packages):
+def install_packages(packages, thread_num):
     print("Fetching mirrors")
     mirrors = check.get_mirrors()
 
@@ -41,7 +42,7 @@ def install_packages(packages):
     packages = check.match_packages(packages, mirrors)
 
     print("Downloading")
-    downloader = thread.DownloadManager(packages)
+    downloader = thread.DownloadManager(packages, thread_num)
     ml = graphic.Multiline()
     for done, per_package in downloader.start():
         t_size = get_terminal_size().columns
