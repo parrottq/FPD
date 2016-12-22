@@ -54,7 +54,7 @@ class DownloadManager:
             for t in self.running:
                 self.done_size += t.progress
 
-            yield ((self.done_size, self.removed_size, self.all_size), [int(thread.progress/thread.package.size * 100) for thread in self.running])
+            yield ((self.done_size, self.removed_size, self.all_size), [(int(thread.progress/thread.package.size * 100), thread.package.name) for thread in self.running])
             sleep(0.1)
         print()
 

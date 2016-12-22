@@ -1,13 +1,30 @@
 from subprocess import run, PIPE
 from urllib.parse import urlparse
 import requests
+from string import ascii_letters
 
 
 class Package:
     def __init__(self, url):
         self.rel_url = self._to_rel(url)
         self.base_url = url
+        self._get_name()
         self.size = -1
+
+    def _get_name(self):
+        parts = self.rel_url.split("/")[-1].split("-")
+
+        name = []
+        for part in parts:
+            has_letter = False
+            for letter in part:
+                if letter in ascii_letters:
+                    name.append(part)
+                    has_letter = True
+                    break
+            if not has_letter:
+                break
+        self.name = "-".join(name)
 
     def update_size(self):
         self.size = int(requests.head(self.base_url).headers["Content-Length"])

@@ -49,7 +49,7 @@ def install_packages(packages, thread_num):
         ml.clear_lines(t_size)
 
         for num, per in enumerate(per_package):
-            ml.print(graphic.create_progress_bar((per, 0, 100), int(t_size/3*2)), num + 1, t_size)
+            ml.print(graphic.create_progress_bar((per[0], 0, 100), int(t_size/3*2)) + "\t" + per[1], num + 1, t_size)
 
         ml.print(graphic.create_progress_bar(done, t_size), 0, t_size)
 
