@@ -52,6 +52,7 @@ def install_packages(packages, thread_num):
             ml.print(graphic.create_progress_bar((per[0], 0, 100), int(t_size/3*2)) + "\t" + per[1], num + 1, t_size)
 
         ml.print(graphic.create_progress_bar(done, t_size), 0, t_size)
+        ml.print("", len(per_package)+1, t_size)
 
 
 if __name__ == "__main__":
