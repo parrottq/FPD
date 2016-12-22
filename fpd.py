@@ -2,7 +2,8 @@
 import click
 from fpd import check, thread, graphic
 import grequests
-from shutil import get_terminal_size
+from shutil import get_terminal_size, move
+from os import listdir
 
 
 @click.command()
@@ -54,6 +55,14 @@ def install_packages(packages, thread_num):
         ml.print(graphic.create_progress_bar(done, t_size), 0, t_size)
         ml.print("", len(per_package)+1, t_size)
 
+    print("Moving packages to cache")
+    for f in listdir("/var/cache/fpd"):
+        try:
+            move("/var/cache/fpd/{0}".format(f), "/var/cache/pacman/pkg")
+        except Exception:
+            pass
+
+    print("Run \"pacman -Syu\" to finish the update")
 
 if __name__ == "__main__":
     run()
