@@ -1,7 +1,6 @@
 #! /usr/bin/python
 import click
 from fpd import check, thread, graphic
-from fpd.download import create_progress_bar
 import grequests
 from shutil import get_terminal_size
 
@@ -50,9 +49,9 @@ def install_packages(packages, thread_num):
         ml.clear_lines(t_size)
 
         for num, per in enumerate(per_package):
-            ml.print(create_progress_bar((per, 0, 100), int(t_size/3*2)), num + 1, t_size)
+            ml.print(graphic.create_progress_bar((per, 0, 100), int(t_size/3*2)), num + 1, t_size)
 
-        ml.print(create_progress_bar(done, t_size), 0, t_size)
+        ml.print(graphic.create_progress_bar(done, t_size), 0, t_size)
 
 
 if __name__ == "__main__":

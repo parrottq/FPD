@@ -1,5 +1,11 @@
 
 
+colours = {
+        "reset"  : "\x1b[0m",
+        "green"  : "\x1b[32m",
+        "yellow" : "\x1b[33m",
+    }
+
 
 class Multiline:
     move = {"up": "\x1b[1A", "down": "\n" } #"\x1b[1B"}
@@ -33,3 +39,28 @@ class Multiline:
             print(self.move["up"] * (self.current_line - line), end="\r")
             print(text, end="")
             self.current_line = line
+
+
+def create_progress_bar(progress, t_size):
+    start ="["
+    percentage = ((progress[0] + progress[1]) / progress[2]) * 100
+    end = "] {0}{1}%".format(" " * (3 - len(str(int(percentage)))), int(percentage))
+    len_bar = t_size - len(start+end)
+    conversion = len_bar / progress[2]
+
+
+    body = []
+    body.append("".join(["#" for e in range(int(progress[1] * conversion))]))
+    body.append("".join(["#" for e in range(int(progress[0] * conversion))]))
+    body.append("".join(["-" for e in range(len_bar - len("".join(body)))]))
+
+    body_colour = [
+        colours["green"], # Colour of finished package sizes
+        colours["yellow"], # Colour of unfinished package sizes
+        colours["reset"], # Resets colour
+    ]
+    progress = ""
+    for b in zip(body_colour, body):
+        progress += "".join(b)
+
+    return start + progress + end
