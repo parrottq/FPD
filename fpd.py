@@ -1,6 +1,6 @@
 #! /usr/bin/python
 import click
-from fpd import check, thread
+from fpd import check, thread, graphic
 from fpd.download import create_progress_bar
 import grequests
 from shutil import get_terminal_size
@@ -42,17 +42,16 @@ def install_packages(packages):
 
     print("Downloading")
     downloader = thread.DownloadManager(packages)
+    ml = graphic.Multiline()
     for done, per_package in downloader.start():
         t_size = get_terminal_size().columns
-        for e in range(4 - len(per_package)):
-            print("\r" + " " * t_size)
-        for per in per_package:
-            print("\r" + create_progress_bar((per, 0, 100), int(t_size/3*2)))
 
-        print("\r" + create_progress_bar(done, t_size), end="\x1b[1A" * 4)
-    for e in range(4+1):
-        print(" " * t_size)
-    print("\x1b[1A" * 4 * 2)
+        ml.clear_lines(t_size)
+
+        for num, per in enumerate(per_package):
+            ml.print(create_progress_bar((per, 0, 100), int(t_size/3*2)), num + 1, t_size)
+
+        ml.print(create_progress_bar(done, t_size), 0, t_size)
 
 
 if __name__ == "__main__":
