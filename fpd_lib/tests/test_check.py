@@ -1,4 +1,4 @@
-from .. import check
+from fpd_lib import check
 
 
 
