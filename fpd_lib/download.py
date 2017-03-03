@@ -23,6 +23,21 @@ def download_package(url):
         yield ti
 
 
+def download(url):
+    """
+    Downloads data from a URL
+
+    Keyword arguments:
+    url -- resource location
+    """
+
+    response = b""
+    for chunk in requests.get(url, stream=True).iter_content(chunk_size=1024):
+        if chunk:
+            response += chunk
+    return response
+
+
 if __name__ == "__main__":
     for package in files.f:
         print(package)
