@@ -3,6 +3,25 @@ Module used to parse the databases
 """
 
 
+def parse_update(updates):
+    """
+    Returns parse package update string
+
+    Keyword arguments:
+    updates -- output of "checkupdates" or "pacman -Qu"
+    """
+
+    packages = []
+    for package in updates.split("\n"):
+        arguments = package.split(" ")
+        packages.append((arguments[0], arguments[-1]))
+
+    if len(packages) and packages[-1] == ('',''):
+        packages = packages[:-1]
+
+    return packages
+
+
 def extract_db(tar):
     """
     Returns a formated package list of packages for a tar db

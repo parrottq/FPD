@@ -1,5 +1,6 @@
 from .download import download
 from . import parse
+from subprocess import run, PIPE
 import tarfile
 from io import BytesIO
 
@@ -112,4 +113,9 @@ class Mirrors:
 
 
         Mirrors.mirrors.add(Mirror(url))
+
+
+
+def get_updates():
+    return parse.parse_updates(run(["pacman", "-Qu"], stdout=PIPE))
 
